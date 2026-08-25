@@ -1,0 +1,40 @@
+bundle:
+  name: media-upload-demo
+
+variables:
+  files_id:
+    description: Managed Unity Catalog volume full name
+  postgres_branch:
+    description: Lakebase Autoscaling branch resource name
+  postgres_database:
+    description: Lakebase Autoscaling database resource name
+
+resources:
+  apps:
+    app:
+      name: media-upload-demo
+      description: Reusable governed media upload and preview demo
+      source_code_path: ./
+      user_api_scopes:
+        - files.files
+      resources:
+        - name: files
+          uc_securable:
+            securable_full_name: ${var.files_id}
+            securable_type: VOLUME
+            permission: WRITE_VOLUME
+        - name: postgres
+          postgres:
+            branch: ${var.postgres_branch}
+            database: ${var.postgres_database}
+            permission: CAN_CONNECT_AND_CREATE
+
+targets:
+  default:
+    default: true
+    workspace:
+      host: https://your-workspace.cloud.databricks.com
+    variables:
+      files_id: your_catalog.your_schema.your_volume
+      postgres_branch: projects/media-upload-demo/branches/production
+      postgres_database: projects/media-upload-demo/branches/production/databases/databricks-postgres

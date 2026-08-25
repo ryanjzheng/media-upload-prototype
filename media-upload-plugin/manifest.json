@@ -1,0 +1,41 @@
+{
+  "$schema": "https://databricks.github.io/appkit/schemas/plugin-manifest.schema.json",
+  "name": "media",
+  "displayName": "Media Upload",
+  "description": "Governed media upload and preview. Bytes live in a Unity Catalog Volume via the Files plugin (on-behalf-of-user); metadata lives in the app-owned Lakebase media.media_assets table.",
+  "resources": {
+    "required": [
+      {
+        "type": "volume",
+        "alias": "Media Files Volume",
+        "resourceKey": "files",
+        "description": "Unity Catalog volume for uploaded bytes and thumbnails, accessed via the Files plugin on-behalf-of-user. Each end user needs READ VOLUME and WRITE VOLUME.",
+        "permission": "WRITE_VOLUME",
+        "fields": {
+          "path": {
+            "env": "DATABRICKS_VOLUME_FILES",
+            "description": "Volume path for media storage (e.g. /Volumes/catalog/schema/volume)",
+            "discovery": { "type": "kind", "resourceKind": "volume", "select": "full_name" }
+          }
+        }
+      },
+      {
+        "type": "postgres",
+        "alias": "Metadata Database",
+        "resourceKey": "postgres",
+        "description": "Lakebase Postgres database that stores the app-owned media.media_assets metadata table. The app service principal needs CAN_CONNECT_AND_CREATE to create the schema and table.",
+        "permission": "CAN_CONNECT_AND_CREATE",
+        "fields": {
+          "endpointPath": {
+            "env": "LAKEBASE_ENDPOINT",
+            "description": "Lakebase endpoint resource name (wired in app.yaml via valueFrom: postgres)."
+          }
+        }
+      }
+    ],
+    "optional": []
+  },
+  "version": "0.2.1",
+  "author": "Databricks",
+  "onSetupMessage": "Wire a UC Volume (app.yaml valueFrom: files) and Lakebase (valueFrom: postgres). Add app-level user_api_scopes: [files.files]. Grant the app service principal Lakebase CAN_CONNECT_AND_CREATE, and grant each end user UC READ VOLUME + WRITE VOLUME on the volume (Files access is on-behalf-of-user)."
+}

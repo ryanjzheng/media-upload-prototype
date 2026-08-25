@@ -1,0 +1,12 @@
+node_modules/
+dist/
+client/dist/
+.env
+.databricks/
+.smoke-test/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.DS_Store
+# Superseded accidental nested scaffold; the runnable app is this directory.
+media-upload-demo/
